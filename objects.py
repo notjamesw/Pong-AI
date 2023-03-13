@@ -23,7 +23,7 @@ class Paddle:
     img = PADDLE_IMG
     length = img.get_height()
     width = img.get_width()
-    vel = 2
+    vel = 3
     def __init__(self, x):
         self.y = WIN_HEIGHT/2 - self.length/2
         self.x = x

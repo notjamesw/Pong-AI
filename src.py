@@ -21,16 +21,23 @@ WIN_WIDTH = 900
 color = (255,255,255)
 colorText = (0,0,0)
 textFont = pygame.font.SysFont("georgia", 30)
-text = textFont.render('Play', True, colorText)
-textWidth = text.get_width()
-textHeight = text.get_height()
-Rect = pygame.Rect(WIN_WIDTH/2 - textWidth, WIN_HEIGHT/2 - textHeight/2, 2*textWidth, textHeight*2)
+textPlay = textFont.render('Play', True, colorText)
+textPause = textFont.render('Game Paused, to unpause, press escape',
+                            True, colorText)
+textWidthPlay = textPlay.get_width()
+textHeightPlay = textPlay.get_height()
+textWidthPause = textPause.get_width()
+textHeightPause = textPause.get_height()
+
+Rect = pygame.Rect(WIN_WIDTH/2 - textWidthPlay, WIN_HEIGHT/2 - textHeightPlay/2
+                   , 2*textWidthPlay, textHeightPlay*2)
+Rect2 = pygame.Rect(WIN_WIDTH, WIN_HEIGHT, 2*textWidthPause, textHeightPause*2)
 
 def UI():
     run = True
     win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     pygame.draw.rect(win, color, Rect)
-    win.blit(text, (WIN_WIDTH/2 - textWidth/2, WIN_HEIGHT/2))
+    win.blit(textPlay, (WIN_WIDTH/2 - textWidthPlay/2, WIN_HEIGHT/2))
     pygame.display.update()
     
     while run:
@@ -39,8 +46,10 @@ def UI():
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if ((WIN_WIDTH/2 - textWidth <= mouse[0] <= WIN_WIDTH/2 + textWidth) 
-                    and (WIN_HEIGHT/2 - textHeight <= mouse[1] <= WIN_HEIGHT/2 + textHeight)):
+                if ((WIN_WIDTH/2 - textWidthPlay <= mouse[0] 
+                     <= WIN_WIDTH/2 + textWidthPlay) 
+                    and (WIN_HEIGHT/2 - textHeightPlay <= mouse[1] 
+                         <= WIN_HEIGHT/2 + textHeightPlay)):
                     play()
                     run = False
                         
@@ -67,9 +76,23 @@ def play():
     paddle2 = Paddle(WIN_WIDTH-50)
     while run:
         clock.tick(60)
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_UP]:
+            paddle2.move(1)
+        if keys[pygame.K_DOWN]:
+            paddle2.move(0)
+        if keys[pygame.K_w]:
+            paddle1.move(1)
+        if keys[pygame.K_s]:
+            paddle1.move(0)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            elif (event.type == pygame.KEYDOWN 
+                  and event.key == pygame.K_ESCAPE):
+                if (pauseGame(win)):
+                    run = False
+                       
         ball.move(scores)
         draw_win(win, ball, paddle1, paddle2)
 
@@ -80,6 +103,20 @@ def draw_win(win, ball, paddle1, paddle2):
     paddle2.draw(win)
     ball.draw(win)
     pygame.display.update()
+    
+def pauseGame(win):
+    pygame.draw.rect(win, (255, 255, 255), Rect2)
+    win.blit(textPause, (WIN_WIDTH/2 - textWidthPause/2, WIN_HEIGHT/2))
+    pygame.display.update()
+    pause = True
+    
+    while pause:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return True
+            elif (event.type == pygame.KEYDOWN 
+                  and event.key == pygame.K_ESCAPE):
+                return False
     
 UI()
 pygame.display.quit()
