@@ -33,6 +33,7 @@ Rect = pygame.Rect(WIN_WIDTH/2 - textWidthPlay, WIN_HEIGHT/2 - textHeightPlay/2
                    , 2*textWidthPlay, textHeightPlay*2)
 Rect2 = pygame.Rect(WIN_WIDTH, WIN_HEIGHT, 2*textWidthPause, textHeightPause*2)
 
+#represents the main window and game start screen
 def UI():
     run = True
     win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
@@ -52,28 +53,17 @@ def UI():
                          <= WIN_HEIGHT/2 + textHeightPlay)):
                     play()
                     run = False
-                        
+
+#represents the main game, takes in inputs from the keyboard 
 def play():
     pygame.display.quit()
     run = True
     win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
-    if random.randint(0, 1):
-        yfactor = 1
-    else:
-        yfactor = -1
-        
-    if random.randint(0, 1):
-        xfactor = 1
-    else:
-        xfactor = -1    
-        
-    rx = xfactor * random.uniform(1,2)
-    ry = yfactor * random.uniform(1,2)
-    ball = Ball(rx, ry)
     clock = pygame.time.Clock()
     scores = Scores()
-    paddle1 = Paddle(50)
-    paddle2 = Paddle(WIN_WIDTH-50)
+    paddle1 = Paddle(20)
+    paddle2 = Paddle(WIN_WIDTH-20 - paddle1.width)
+    ball = round()
     while run:
         clock.tick(60)
         keys = pygame.key.get_pressed()
@@ -92,18 +82,43 @@ def play():
                   and event.key == pygame.K_ESCAPE):
                 if (pauseGame(win)):
                     run = False
-                       
+                    
         ball.move(scores)
-        draw_win(win, ball, paddle1, paddle2)
+        paddle1.collide(ball)
+        paddle2.collide(ball)
+        if ball.score(scores):
+            ball = round()
 
-def draw_win(win, ball, paddle1, paddle2):
+        draw_win(win, ball, paddle1, paddle2, scores)
+
+#creates a new ball for each new round at the starting position
+def round():
+    if random.randint(0, 1):
+        yfactor = 1
+    else:
+        yfactor = -1
+        
+    if random.randint(0, 1):
+        xfactor = 1
+    else:
+        xfactor = -1    
+        
+    rx = xfactor * random.uniform(3,4)
+    ry = yfactor * random.uniform(3,4)
+    ball = Ball(rx, ry)
+    return ball;
+
+#draw/renders the images on to the screen
+def draw_win(win, ball, paddle1, paddle2, scores):
     win.blit(objects.BG_IMG, (0,0))
     
     paddle1.draw(win)
     paddle2.draw(win)
     ball.draw(win)
+    scores.draw(win)
     pygame.display.update()
-    
+
+#calls when esc is pressed, pauses the game
 def pauseGame(win):
     pygame.draw.rect(win, (255, 255, 255), Rect2)
     win.blit(textPause, (WIN_WIDTH/2 - textWidthPause/2, WIN_HEIGHT/2))
